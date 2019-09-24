@@ -3,20 +3,58 @@
 
 \usetheme{metropolis}
 \usepackage{appendixnumberbeamer}
-\usepackage{multimedia}
+\usepackage{graphicx}
+\usepackage{animate}
 \usepackage{hyperref}
 \usepackage{booktabs}
 \usepackage[scale=2]{ccicons}
-
+\usepackage{tikz}
+\usetikzlibrary{positioning}
 \usepackage{pgfplots}
 \usepgfplotslibrary{dateplot}
-
+\usepackage{subcaption}
 \usepackage{xspace}
 \newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
 \title{Low-level controller for non-holonomic omnidirectional mobile robot}
 \date{\today}
 \author{Lingyuan Yang}
 \institute{Technische Universität Berlin\\ABB Corporate Research}
+
+
+\tikzset{
+    wheelFrame/.pic={
+		\draw[gray, very thick] (-0.8,-0.1) rectangle (0.8,0.1);
+		\filldraw [gray] (0,0) circle (1pt);
+		\draw[->] (0,0) -- (1,0) node[anchor=north west] {$x^{w#1}$};
+		\draw[->] (0,0) -- (0,1) node[anchor=north west] {$y^{w#1}$}; 
+	}
+}
+\tikzset{
+    wheel/.pic={
+		\draw[gray, very thick] (-0.8,-0.1) rectangle (0.8,0.1);
+		\filldraw [gray] (0,0) circle (1pt);
+	}
+}
+
+
+\tikzset{
+    platform/.pic={
+		\filldraw [gray] (0,0) circle (2pt);
+			\draw[thick,->] (0,0) -- (5,0) node[anchor=north west] {$x^b$};
+			\draw[thick,->] (0,0) -- (0,5) node[anchor=south east] {$y^b$};
+			\draw[thick,->] (0.75,0) arc (0:90:0.75) node[anchor=south west] {$\theta^b$};
+			\draw[black, thick] (-3,-3) rectangle (3,3);
+	}
+}
+
+
+
+
+
+
+
+
+
 
 \begin{document}
 
@@ -38,16 +76,267 @@
     \end{figure}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Trajectory test}
-    \movie[width=3cm,height=2cm,poster]{Pure rotation}{PR.avi}
+\begin{frame}{Non-holonomic omnidirectional mobile robot}
+    	\begin{alertblock}{Non-holonomic}
+		\textbf{Controlable DoF less than DoF} The mobile robot have 3 DoF $x,y,\theta$. But it cannot do arbitrary velocity instantaneously. The wheels needs to orient to a certain position to achieve a certain velocity. Eg. move sideways.
+	\end{alertblock}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Trajectory test}
-    \movie[width=3cm,height=2cm,poster]{90 degree turn}{90degree.avi}
+\begin{frame}{Non-holonomic omnidirectional mobile robot}
+    	\begin{alertblock}{omnidirectional}
+		The mobile robot can acheive any task space velocity $\dot{x},\dot{y},\dot{\theta}$ if properly initialized.
+		Eg. turn all the wheels 90 degree to move sideways.
+	\end{alertblock}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Trajectory test}
-    \movie[width=3cm,height=2cm,poster]{Translation with rotation}{360.avi}
+
+\begin{frame}{Why this structure?}
+   \begin{itemize}
+       \item high loading capability
+       \item flexibility - omnidirectional
+   \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Counterparties}
+    \begin{itemize}
+        \item differential drive - not flexibel
+        \item swedish wheel - not robust
+    \end{itemize}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Kinematics}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Kinematics Constraints}
+    Kinematics constrain the movement of components of a mechanical system.
+    Fundamental for our controller, mapping the task space velocity $\dot{\xi}=[\dot{x},\dot{y},\dot{\theta}]$ to corresponding joint configuration $\beta,\dot{\beta},\dot{\phi}$.
+    \begin{equation}
+        \begin{split}
+            [\beta,\dot{\beta},\dot{\phi}]^T=Kinematics(\dot{\xi},\ddot{\xi})
+        \end{split}
+    \end{equation}
+
+            \begin{figure}
+                \centering
+
+                \begin{subfigure}[t]{0.4\textwidth}
+                    \centering
+                    \includegraphics[width=0.8\linewidth]{Figure/wheel.png}
+                    \caption{Joint configuration}
+                    \label{fig:sub1}
+                \end{subfigure}\hskip 1em%
+                \begin{subfigure}[t]{0.5\textwidth}
+                    \centering
+                    \resizebox{5cm}{!}
+                    {
+		                \begin{tikzpicture}[rotate=30 ]
+			                \pic[rotate=30 ] at(0,0) {platform};
+			                \pic[rotate=75 ] at(2.63,2.63) {wheelFrame={1}};
+			                \pic[rotate=75 ] at(2.63,-2.63) {wheelFrame={2}};
+			                \pic[rotate=75 ] at(-2.63,2.63) {wheelFrame={4}};
+			                \pic[rotate=75 ] at(-2.63,-2.63) {wheelFrame={3}};
+			                
+		                \end{tikzpicture}
+		            }
+                    \caption{Task space velocity}
+                    \label{fig:sub2}
+                \end{subfigure}
+            \end{figure}
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Kinematics Constraints}
+    Basically there is only one kinematic constraint:\\\textbf{The wheel drives without slipping or lateral skidding}\\
+    Which means the wheel contact point with ground has 0 tangential and normal velocity. $v_{ti}=0, v_{ni}=0$
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.5\textwidth]{Figure/wheel.png}
+        \label{fig:wheel}
+    \end{figure}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Kinematics Constraints}
+    From the $v_{ti}=0, v_{ni}=0$ constraint we can derive equations: 
+    \begin{equation}\label{eq:2}
+	\begin{split}
+	\beta_i &= tan^{-1}(\frac{\dot{y^b}+h_{xi}\dot{\theta^b}}{\dot{x^b}-h_{yi}\dot{\theta^b}})
+	\end{split}
+\end{equation}
+
+\begin{equation}\label{eq:3}
+	\begin{split}
+	\dot{\beta_i} &= \frac{-g(\dot{\beta_i})\ddot{\xi}}{\frac{dg(\dot{\beta_i})}{d\beta_i}\dot{\xi}}=\frac{\partial\beta_i}{\partial\dot{x}^b}\ddot{x}^b+\frac{\partial\beta_i}{\partial\dot{y}^b}\ddot{y}^b +\frac{\partial\beta_i}{\partial\dot{\theta^b}}\ddot{\theta}^b
+	=f_{1i}(\dot{\xi^b})\ddot{\xi^b}
+	\end{split}
+\end{equation}
+
+\begin{equation}\label{eq:4}
+	\begin{split}
+	\dot{\phi_i} &= \frac{1}{r_w}[cos(\beta_i), sin(\beta_i), -h_{yi}cos(\beta_i)+h_{xi}sin(\beta_i)]\dot{\xi^b}=f_{2i}(\beta)\dot{\xi^b}
+	\end{split}
+\end{equation}
+
+These equations combined are called inverse kinematics(IK). Given task space command $\dot{\xi}=[\dot{x},\dot{y},\dot{\theta}]$ and $\ddot{\xi}=[\ddot{x},\ddot{y},\ddot{\theta}]$. We can use the IK to get the corresponding steering angle $\beta$, steering velocity $\dot{\beta}$ and driving speed $\dot{\phi}$
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Instantaneous center of rotation (ICR)}
+    Another interpretation for the kinematics is that, if the \textbf{no slipping or lateral skidding} constraint is met. Then at each instant the motion of the robot can be viewed as an instantaneous rotation around the ICR
+    \begin{figure}
+	\begin{center}
+	\resizebox{4cm}{!}
+    {
+		\begin{tikzpicture}
+			\pic at(0,0) {platform};
+			\pic[rotate=61] at(2.63,2.63) {wheelFrame={1}};
+			\pic[rotate=11.2] at(2.63,-2.63) {wheelFrame={2}};
+			\pic[rotate=-80.3] at(-2.63,2.63) {wheelFrame={4}};
+			\pic[rotate=-34] at(-2.63,-2.63) {wheelFrame={3}};		
+			\filldraw [gray] (1.4,3.3) circle (2pt) node[above,text=red]{ICR};
+			\draw [rotate=-90, thick, ->] (0,0) -- (1.4,3.3) node[above,text=red]{$\dot{\xi}^{ref}$};
+			\draw (2.63,2.63) -- (1.4,3.3);
+			\draw (2.63,-2.63) -- (1.4,3.3);
+			\draw (-2.63,-2.63) -- (1.4,3.3);
+			\draw (-2.63,2.63) -- (1.4,3.3);
+		\end{tikzpicture}
+		}
+	\end{center}
+	\caption{Instantaneous Center of Rotation}
+\end{figure}
+Conclusion: At each time instant, the y axles of all the wheels are concurrent at the ICR.
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Problem Identification}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Inconsistency}
+    In cases like obstacle avoidance, inconsistent task space command could happen. Huge acceleration on steering is required to conduct this sudden change in 1 control cycle (0.002s).
+    The wheel motor will be broken/locked\\
+    e.g. Pedestrian avoiding\\
+    \begin{equation}
+        \dot{\xi}^n=[1,0,0] - > \dot{\xi}^{n+1}=[0,1,0]
+    \end{equation}
+    
+   
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Inconsistency}
+ \begin{figure}
+	\begin{center}
+	\resizebox{4cm}{!}
+    {
+		\begin{tikzpicture}
+			\pic at(0,0) {platform};
+			\pic[rotate=0] at(2.63,2.63) {wheelFrame={1}};
+			\pic[rotate=0] at(2.63,-2.63) {wheelFrame={2}};
+			\pic[rotate=0] at(-2.63,2.63) {wheelFrame={4}};
+			\pic[rotate=0] at(-2.63,-2.63) {wheelFrame={3}};		
+			%\filldraw [gray] (1.4,3.3) circle (2pt) node[above,text=red]{ICR};
+			\draw [rotate=0, thick, ->] (0,0) -- (4,0) node[above,text=red]{$\dot{\xi}^{ref}$};
+% 			\draw (2.63,2.63) -- (1.4,3.3);
+% 			\draw (2.63,-2.63) -- (1.4,3.3);
+% 			\draw (-2.63,-2.63) -- (1.4,3.3);
+% 			\draw (-2.63,2.63) -- (1.4,3.3);
+		\end{tikzpicture}
+		}
+	\end{center}
+	\caption{$\dot{\xi}^n=[1,0,0]$}
+\end{figure}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Inconsistency}
+ \begin{figure}
+	\begin{center}
+	\resizebox{4cm}{!}
+    {
+		\begin{tikzpicture}
+			\pic at(0,0) {platform};
+			\pic[rotate=90] at(2.63,2.63) {wheelFrame={1}};
+			\pic[rotate=90] at(2.63,-2.63) {wheelFrame={2}};
+			\pic[rotate=90] at(-2.63,2.63) {wheelFrame={4}};
+			\pic[rotate=90] at(-2.63,-2.63) {wheelFrame={3}};		
+			%\filldraw [gray] (1.4,3.3) circle (2pt) node[above,text=red]{ICR};
+			\draw [rotate=90, thick, ->] (0,0) -- (4,0) node[above,text=red]{$\dot{\xi}^{ref}$};
+% 			\draw (2.63,2.63) -- (1.4,3.3);
+% 			\draw (2.63,-2.63) -- (1.4,3.3);
+% 			\draw (-2.63,-2.63) -- (1.4,3.3);
+% 			\draw (-2.63,2.63) -- (1.4,3.3);
+		\end{tikzpicture}
+		}
+	\end{center}
+	\caption{$\dot{\xi}^n=[0,1,0]$}
+\end{figure}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Inconsistency}
+    We can also apply the ICR interpretation on the inconsistency problem. \\
+    \textbf{Inconsistency task space command corresponding to a huge change of ICR position}\\
+    e.g.:
+    \begin{equation}
+        \dot{\xi}^n=[3.3,-1.4,1] - > \dot{\xi}^{n+1}=[0,0,1]
+    \end{equation}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Inconsistency}
+     \begin{figure}
+	\begin{center}
+	\resizebox{4cm}{!}
+    {
+		\begin{tikzpicture}
+			\pic at(0,0) {platform};
+			\pic[rotate=61] at(2.63,2.63) {wheelFrame={1}};
+			\pic[rotate=11.2] at(2.63,-2.63) {wheelFrame={2}};
+			\pic[rotate=-80.3] at(-2.63,2.63) {wheelFrame={4}};
+			\pic[rotate=-34] at(-2.63,-2.63) {wheelFrame={3}};		
+			\filldraw [gray] (1.4,3.3) circle (2pt) node[above,text=red]{ICR};
+			\draw [rotate=-90, thick, ->] (0,0) -- (1.4,3.3) node[above,text=red]{$\dot{\xi}^{ref}$};
+			\draw (2.63,2.63) -- (1.4,3.3);
+			\draw (2.63,-2.63) -- (1.4,3.3);
+			\draw (-2.63,-2.63) -- (1.4,3.3);
+			\draw (-2.63,2.63) -- (1.4,3.3);
+		\end{tikzpicture}
+		}
+	\end{center}
+	\caption{$\dot{\xi}^n=[3.3,-1.4,1]$}
+\end{figure}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Inconsistency}
+     \begin{figure}
+	\begin{center}
+	\resizebox{4cm}{!}
+    {
+		\begin{tikzpicture}
+			\pic at(0,0) {platform};
+			\pic[rotate=135] at(2.63,2.63) {wheelFrame={1}};
+			\pic[rotate=45] at(2.63,-2.63) {wheelFrame={2}};
+			\pic[rotate=-135] at(-2.63,2.63) {wheelFrame={4}};
+			\pic[rotate=-45] at(-2.63,-2.63) {wheelFrame={3}};		
+			\filldraw [gray] (0,0) circle (2pt) node[above,text=red]{ICR};
+			%\draw [rotate=-90, thick, ->] (0,0) -- (1.4,3.3) node[above,text=red]{$\dot{\xi}^{ref}$};
+			\draw (2.63,2.63) -- (0,0);
+			\draw (2.63,-2.63) -- (0,0);
+			\draw (-2.63,-2.63) -- (0,0);
+			\draw (-2.63,2.63) -- (0,0);
+		\end{tikzpicture}
+		}
+	\end{center}
+	\caption{$\dot{\xi}^{n+1}=[0,0,1]$}
+\end{figure}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}[fragile]{Metropolis}
