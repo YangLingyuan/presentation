@@ -232,7 +232,7 @@ Conclusion: At each time instant, the y axles of all the wheels are concurrent a
 \begin{frame}{Inconsistency}
  \begin{figure}
 	\begin{center}
-	\resizebox{4cm}{!}
+	\resizebox{5cm}{!}
     {
 		\begin{tikzpicture}
 			\pic at(0,0) {platform};
@@ -241,7 +241,7 @@ Conclusion: At each time instant, the y axles of all the wheels are concurrent a
 			\pic[rotate=0] at(-2.63,2.63) {wheelFrame={4}};
 			\pic[rotate=0] at(-2.63,-2.63) {wheelFrame={3}};		
 			%\filldraw [gray] (1.4,3.3) circle (2pt) node[above,text=red]{ICR};
-			\draw [rotate=0, thick, ->] (0,0) -- (4,0) node[above,text=red]{$\dot{\xi}^{ref}$};
+			\draw [rotate=0, thick, ->] (0,0) -- (4,0) node[above,text=red]{$\dot{\xi}^{n}$};
 % 			\draw (2.63,2.63) -- (1.4,3.3);
 % 			\draw (2.63,-2.63) -- (1.4,3.3);
 % 			\draw (-2.63,-2.63) -- (1.4,3.3);
@@ -256,7 +256,7 @@ Conclusion: At each time instant, the y axles of all the wheels are concurrent a
 \begin{frame}{Inconsistency}
  \begin{figure}
 	\begin{center}
-	\resizebox{4cm}{!}
+	\resizebox{5cm}{!}
     {
 		\begin{tikzpicture}
 			\pic at(0,0) {platform};
@@ -264,8 +264,10 @@ Conclusion: At each time instant, the y axles of all the wheels are concurrent a
 			\pic[rotate=90] at(2.63,-2.63) {wheelFrame={2}};
 			\pic[rotate=90] at(-2.63,2.63) {wheelFrame={4}};
 			\pic[rotate=90] at(-2.63,-2.63) {wheelFrame={3}};		
-			%\filldraw [gray] (1.4,3.3) circle (2pt) node[above,text=red]{ICR};
-			\draw [rotate=90, thick, ->] (0,0) -- (4,0) node[above,text=red]{$\dot{\xi}^{ref}$};
+      %\filldraw [gray] (1.4,3.3) circle (2pt) node[above,text=red]{ICR};
+      \draw [rotate=0, thick, ->] (0,0) -- (4,0) node[above,text=red]{$\dot{\xi}^{n}$};
+      \draw [rotate=90, thick, ->] (0,0) -- (4,0) node[above,text=red]{$\dot{\xi}^{n+1}$};
+      \draw [red,thick, ->] (4,0) -- (0,4) node[anchor=west,text=red]{$\Delta\dot{\xi}$};
 % 			\draw (2.63,2.63) -- (1.4,3.3);
 % 			\draw (2.63,-2.63) -- (1.4,3.3);
 % 			\draw (-2.63,-2.63) -- (1.4,3.3);
@@ -289,9 +291,9 @@ Conclusion: At each time instant, the y axles of all the wheels are concurrent a
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Inconsistency}
-     \begin{figure}
+  \begin{figure}
 	\begin{center}
-	\resizebox{4cm}{!}
+	\resizebox{5cm}{!}
     {
 		\begin{tikzpicture}
 			\pic at(0,0) {platform};
@@ -299,8 +301,8 @@ Conclusion: At each time instant, the y axles of all the wheels are concurrent a
 			\pic[rotate=11.2] at(2.63,-2.63) {wheelFrame={2}};
 			\pic[rotate=-80.3] at(-2.63,2.63) {wheelFrame={4}};
 			\pic[rotate=-34] at(-2.63,-2.63) {wheelFrame={3}};		
-			\filldraw [gray] (1.4,3.3) circle (2pt) node[above,text=red]{ICR};
-			\draw [rotate=-90, thick, ->] (0,0) -- (1.4,3.3) node[above,text=red]{$\dot{\xi}^{ref}$};
+			\filldraw [gray] (1.4,3.3) circle (2pt) node[above,text=red]{$ICR^n$};
+			%\draw [rotate=-90, thick, ->] (0,0) -- (1.4,3.3) node[above,text=red]{$\dot{\xi}^{ref}$};
 			\draw (2.63,2.63) -- (1.4,3.3);
 			\draw (2.63,-2.63) -- (1.4,3.3);
 			\draw (-2.63,-2.63) -- (1.4,3.3);
@@ -318,15 +320,16 @@ Conclusion: At each time instant, the y axles of all the wheels are concurrent a
 \begin{frame}{Inconsistency}
      \begin{figure}
 	\begin{center}
-	\resizebox{4cm}{!}
+	\resizebox{5cm}{!}
     {
 		\begin{tikzpicture}
 			\pic at(0,0) {platform};
 			\pic[rotate=135] at(2.63,2.63) {wheelFrame={1}};
 			\pic[rotate=45] at(2.63,-2.63) {wheelFrame={2}};
 			\pic[rotate=-135] at(-2.63,2.63) {wheelFrame={4}};
-			\pic[rotate=-45] at(-2.63,-2.63) {wheelFrame={3}};		
-			\filldraw [gray] (0,0) circle (2pt) node[above,text=red]{ICR};
+      \pic[rotate=-45] at(-2.63,-2.63) {wheelFrame={3}};	
+      \filldraw [gray] (1.4,3.3) circle (2pt) node[above,text=red]{$ICR^n$};	
+			\filldraw [gray] (0,0) circle (2pt) node[above,text=red]{$ICR^{n+1}$};
 			%\draw [rotate=-90, thick, ->] (0,0) -- (1.4,3.3) node[above,text=red]{$\dot{\xi}^{ref}$};
 			\draw (2.63,2.63) -- (0,0);
 			\draw (2.63,-2.63) -- (0,0);
@@ -339,132 +342,232 @@ Conclusion: At each time instant, the y axles of all the wheels are concurrent a
 \end{figure}
 \end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[fragile]{Metropolis}
+\section{Solutions}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{How to solve inconsistency?}
+The inconsistemcy problem is due to the fact that kinematic model ignores the dynamic. 
+\metroset{block=fill}
 
-  The \themename theme is a Beamer theme with minimal visual noise
-  inspired by the \href{https://github.com/hsrmbeamertheme/hsrmbeamertheme}{\textsc{hsrm} Beamer
-  Theme} by Benjamin Weiss.
-
-  Enable the theme by loading
-
-  \begin{verbatim}    \documentclass{beamer}
-    \usetheme{metropolis}\end{verbatim}
-
-  Note, that you have to have Mozilla's \emph{Fira Sans} font and XeTeX
-  installed to enjoy this wonderful typography.
-\end{frame}
-\begin{frame}[fragile]{Sections}
-  Sections group slides of the same topic
-
-  \begin{verbatim}    \section{Elements}\end{verbatim}
-
-  for which \themename provides a nice progress indicator \ldots
+\begin{block}{Solution}
+  Include dynamic constraints in the control logic.
+\end{block}
+ 
 \end{frame}
 
-\section{Title formats}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Approximation based Inverse Kinematic control}
+  If we look back at the first instance, we can see that the difference $\Delta\dot{\xi}$ between current control cycle velocity and 
+  next control cycle reference velocity is huge. Which means a big change of task space velocity corresponding to a big change 
+  of joint configuration. 
 
-\begin{frame}{Metropolis title formats}
-	\themename supports 4 different title formats:
-	\begin{itemize}
-		\item Regular
-		\item \textsc{Small caps}
-		\item \textsc{all small caps}
-		\item ALL CAPS
-	\end{itemize}
-	They can either be set at once for every title type or individually.
-\end{frame}
-
-{
-    \metroset{titleformat frame=smallcaps}
-\begin{frame}{Small caps}
-	This frame uses the \texttt{smallcaps} title format.
-
-	\begin{alertblock}{Potential Problems}
-		Be aware that not every font supports small caps. If for example you typeset your presentation with pdfTeX and the Computer Modern Sans Serif font, every text in small caps will be typeset with the Computer Modern Serif font instead.
-	\end{alertblock}
-\end{frame}
-}
-
-{
-\metroset{titleformat frame=allsmallcaps}
-\begin{frame}{All small caps}
-	This frame uses the \texttt{allsmallcaps} title format.
-
-	\begin{alertblock}{Potential problems}
-		As this title format also uses small caps you face the same problems as with the \texttt{smallcaps} title format. Additionally this format can cause some other problems. Please refer to the documentation if you consider using it.
-
-		As a rule of thumb: just use it for plaintext-only titles.
-	\end{alertblock}
-\end{frame}
-}
-
-{
-\metroset{titleformat frame=allcaps}
-\begin{frame}{All caps}
-	This frame uses the \texttt{allcaps} title format.
-
-	\begin{alertblock}{Potential Problems}
-		This title format is not as problematic as the \texttt{allsmallcaps} format, but basically suffers from the same deficiencies. So please have a look at the documentation if you want to use it.
-	\end{alertblock}
-\end{frame}
-}
-
-\section{Elements}
-
-\begin{frame}[fragile]{Typography}
-      \begin{verbatim}The theme provides sensible defaults to
-\emph{emphasize} text, \alert{accent} parts
-or show \textbf{bold} results.\end{verbatim}
-
-  \begin{center}becomes\end{center}
-
-  The theme provides sensible defaults to \emph{emphasize} text,
-  \alert{accent} parts or show \textbf{bold} results.
-\end{frame}
-
-\begin{frame}{Font feature test}
-  \begin{itemize}
-    \item Regular
-    \item \textit{Italic}
-    \item \textsc{Small Caps}
-    \item \textbf{Bold}
-    \item \textbf{\textit{Bold Italic}}
-    \item \textbf{\textsc{Bold Small Caps}}
-    \item \texttt{Monospace}
-    \item \texttt{\textit{Monospace Italic}}
-    \item \texttt{\textbf{Monospace Bold}}
-    \item \texttt{\textbf{\textit{Monospace Bold Italic}}}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}{Lists}
   \begin{columns}[T,onlytextwidth]
-    \column{0.33\textwidth}
-      Items
-      \begin{itemize}
-        \item Milk \item Eggs \item Potatoes
-      \end{itemize}
+    \column{0.4\textwidth}
+    \metroset{block=fill}
+    \begin{block}{Idea}
+      Scaling down the amount of changing $\Delta\dot{\xi},\Delta\ddot{\xi}$ based on the dynamic cosntraint.
+    \end{block}
 
-    \column{0.33\textwidth}
-      Enumerations
-      \begin{enumerate}
-        \item First, \item Second and \item Last.
-      \end{enumerate}
+      But what is the relationship between $\Delta\dot{\xi},\Delta\ddot{\xi}$ and joint acceleration and how much shall we scale down?
 
-    \column{0.33\textwidth}
-      Descriptions
-      \begin{description}
-        \item[PowerPoint] Meeh. \item[Beamer] Yeeeha.
-      \end{description}
+    \column{0.6\textwidth}
+
+    \begin{figure}
+      \begin{center}
+      \resizebox{5cm}{!}
+        {
+        \begin{tikzpicture}
+          \pic at(0,0) {platform};
+          \pic[rotate=90] at(2.63,2.63) {wheelFrame={1}};
+          \pic[rotate=90] at(2.63,-2.63) {wheelFrame={2}};
+          \pic[rotate=90] at(-2.63,2.63) {wheelFrame={4}};
+          \pic[rotate=90] at(-2.63,-2.63) {wheelFrame={3}};		
+          %\filldraw [gray] (1.4,3.3) circle (2pt) node[above,text=red]{ICR};
+          \draw [rotate=0, thick, ->] (0,0) -- (4,0) node[above,text=red]{$\dot{\xi}^{n}$};
+          \draw [rotate=90, thick, ->] (0,0) -- (4,0) node[above,text=red]{$\dot{\xi}^{n+1}$};
+          \draw [red,thick, ->] (4,0) -- (0,4) node[anchor=west,text=red]{$\Delta\dot{\xi}$};
+    % 			\draw (2.63,2.63) -- (1.4,3.3);
+    % 			\draw (2.63,-2.63) -- (1.4,3.3);
+    % 			\draw (-2.63,-2.63) -- (1.4,3.3);
+    % 			\draw (-2.63,2.63) -- (1.4,3.3);
+        \end{tikzpicture}
+        }
+      \end{center}
+      \caption{$\Delta\dot{\xi}$}
+    \end{figure}
+
   \end{columns}
+
+  
+  
 \end{frame}
-\begin{frame}{Animation}
-  \begin{itemize}[<+- | alert@+>]
-    \item \alert<4>{This is\only<4>{ really} important}
-    \item Now this
-    \item And now this
-  \end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Approximation based Inverse Kinematic control}
+Linearize the kinematics about the current state of the mobile platform. Then we have a linear relationship between 
+$\Delta\dot{\xi},\Delta\ddot{\xi}$ and joint acceleration
+
+\begin{equation}\label{eq:deltaRelation}
+  \begin{split}
+      \ddot{\beta}^{n+1}&=\Delta\dot{\beta}_i/\Delta T=\frac{1}{\Delta T}f_{1i}(\dot{\xi}^n)\Delta\ddot{\xi}\\
+      \ddot{\phi}^{n+1}&=\Delta\dot{\phi}_i/\Delta T=\frac{1}{\Delta T}f_{2i}(\beta^n)\Delta\dot{\xi}
+  \end{split}
+\end{equation}
+
+Base on the above equition, we can detect violation of acceleration limits, and scale down the corresponding term 
+$\Delta\dot{\xi}_{new}= \frac{\ddot{\phi}_{max}}{\ddot{\phi}}\Delta\dot{\xi}$.\\
+And then calculate the new command $\dot{\xi}^{n+1}_{new}=\dot{\xi}^n+\Delta\dot{\xi}_{new}$
 \end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Approximation based Inverse Kinematic control}
+  \begin{figure}
+    \begin{center}
+    \resizebox{7cm}{!}
+      {
+      \begin{tikzpicture}
+        \pic at(0,0) {platform};
+        \pic[rotate=0] at(2.63,2.63) {wheelFrame={1}};
+        \pic[rotate=0] at(2.63,-2.63) {wheelFrame={2}};
+        \pic[rotate=0] at(-2.63,2.63) {wheelFrame={4}};
+        \pic[rotate=0] at(-2.63,-2.63) {wheelFrame={3}};		
+        %\filldraw [gray] (1.4,3.3) circle (2pt) node[above,text=red]{ICR};
+        \draw [rotate=0, thick, ->] (0,0) -- (4,0) node[above,text=red]{$\dot{\xi}^{n}$};
+        \draw [rotate=20, thick, ->] (0,0) -- (4,0) node[above,text=red]{$\dot{\xi}^{n+1}_{new}$};
+        \draw [rotate=90, thick, ->] (0,0) -- (4,0) node[above,text=red]{$\dot{\xi}^{n+1}$};
+        % \draw [red,thick, ->] (4,0) -- (0,4) node[anchor=west,text=red]{$\Delta\dot{\xi}$};
+  % 			\draw (2.63,2.63) -- (1.4,3.3);
+  % 			\draw (2.63,-2.63) -- (1.4,3.3);
+  % 			\draw (-2.63,-2.63) -- (1.4,3.3);
+  % 			\draw (-2.63,2.63) -- (1.4,3.3);
+      \end{tikzpicture}
+      }
+    \end{center}
+    \caption{Scaling process}
+  \end{figure}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Approximation based Inverse Kinematic control}
+  \begin{figure}
+    \begin{center}
+    \resizebox{7cm}{!}
+      {
+      \begin{tikzpicture}
+        \pic at(0,0) {platform};
+        \pic[rotate=20] at(2.63,2.63) {wheelFrame={1}};
+        \pic[rotate=20] at(2.63,-2.63) {wheelFrame={2}};
+        \pic[rotate=20] at(-2.63,2.63) {wheelFrame={4}};
+        \pic[rotate=20] at(-2.63,-2.63) {wheelFrame={3}};		
+        %\filldraw [gray] (1.4,3.3) circle (2pt) node[above,text=red]{ICR};
+        \draw [rotate=20, thick, ->] (0,0) -- (4,0) node[above,text=red]{$\dot{\xi}^{n}$};
+        \draw [rotate=40, thick, ->] (0,0) -- (4,0) node[above,text=red]{$\dot{\xi}^{n+1}_{new}$};
+        \draw [rotate=90, thick, ->] (0,0) -- (4,0) node[above,text=red]{$\dot{\xi}^{n+1}$};
+        % \draw [red,thick, ->] (4,0) -- (0,4) node[anchor=west,text=red]{$\Delta\dot{\xi}$};
+  % 			\draw (2.63,2.63) -- (1.4,3.3);
+  % 			\draw (2.63,-2.63) -- (1.4,3.3);
+  % 			\draw (-2.63,-2.63) -- (1.4,3.3);
+  % 			\draw (-2.63,2.63) -- (1.4,3.3);
+      \end{tikzpicture}
+      }
+    \end{center}
+    \caption{Scaling process}
+  \end{figure}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Approximation based Inverse Kinematic control}
+  \begin{figure}
+    \begin{center}
+    \resizebox{7cm}{!}
+      {
+      \begin{tikzpicture}
+        \pic at(0,0) {platform};
+        \pic[rotate=40] at(2.63,2.63) {wheelFrame={1}};
+        \pic[rotate=40] at(2.63,-2.63) {wheelFrame={2}};
+        \pic[rotate=40] at(-2.63,2.63) {wheelFrame={4}};
+        \pic[rotate=40] at(-2.63,-2.63) {wheelFrame={3}};		
+        %\filldraw [gray] (1.4,3.3) circle (2pt) node[above,text=red]{ICR};
+        \draw [rotate=40, thick, ->] (0,0) -- (4,0) node[above,text=red]{$\dot{\xi}^{n}$};
+        \draw [rotate=60, thick, ->] (0,0) -- (4,0) node[above,text=red]{$\dot{\xi}^{n+1}_{new}$};
+        \draw [rotate=90, thick, ->] (0,0) -- (4,0) node[above,text=red]{$\dot{\xi}^{n+1}$};
+        % \draw [red,thick, ->] (4,0) -- (0,4) node[anchor=west,text=red]{$\Delta\dot{\xi}$};
+  % 			\draw (2.63,2.63) -- (1.4,3.3);
+  % 			\draw (2.63,-2.63) -- (1.4,3.3);
+  % 			\draw (-2.63,-2.63) -- (1.4,3.3);
+  % 			\draw (-2.63,2.63) -- (1.4,3.3);
+      \end{tikzpicture}
+      }
+    \end{center}
+    \caption{Scaling process}
+  \end{figure}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Approximation based Inverse Kinematic control}
+  \begin{figure}
+    \begin{center}
+    \resizebox{7cm}{!}
+      {
+      \begin{tikzpicture}
+        \pic at(0,0) {platform};
+        \pic[rotate=60] at(2.63,2.63) {wheelFrame={1}};
+        \pic[rotate=60] at(2.63,-2.63) {wheelFrame={2}};
+        \pic[rotate=60] at(-2.63,2.63) {wheelFrame={4}};
+        \pic[rotate=60] at(-2.63,-2.63) {wheelFrame={3}};		
+        %\filldraw [gray] (1.4,3.3) circle (2pt) node[above,text=red]{ICR};
+        \draw [rotate=60, thick, ->] (0,0) -- (4,0) node[above,text=red]{$\dot{\xi}^{n}$};
+        \draw [rotate=80, thick, ->] (0,0) -- (4,0) node[above,text=red]{$\dot{\xi}^{n+1}_{new}$};
+        \draw [rotate=90, thick, ->] (0,0) -- (4,0) node[above,text=red]{$\dot{\xi}^{n+1}$};
+        % \draw [red,thick, ->] (4,0) -- (0,4) node[anchor=west,text=red]{$\Delta\dot{\xi}$};
+  % 			\draw (2.63,2.63) -- (1.4,3.3);
+  % 			\draw (2.63,-2.63) -- (1.4,3.3);
+  % 			\draw (-2.63,-2.63) -- (1.4,3.3);
+  % 			\draw (-2.63,2.63) -- (1.4,3.3);
+      \end{tikzpicture}
+      }
+    \end{center}
+    \caption{Scaling process}
+  \end{figure}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Approximation based Inverse Kinematic control}
+\metroset{block=fill}
+The linearized approximation is relative accurate in most cases. But the kinematics have sigularity configurations, when 
+the task space velocity command getting close to these configurations, approximation error increase significantly.
+\begin{columns}
+  \column{0.4\textwidth}
+  \begin{block}{Limitation}
+  Expressed in ICR form, the approximation error increase when ICR getting close to the platform
+  \end{block}
+  %approximation error image
+  \column{0.4\textwidth}
+
+\end{columns}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \begin{frame}{Figures}
   \begin{figure}
     \newcounter{density}
